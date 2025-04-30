@@ -3,10 +3,112 @@ name: Download Datasets and Store with Git LFS
 on:
   workflow_dispatch:
     inputs:
-      datasets:
-        description: 'Comma-separated list of dataset names (e.g., "nvidia/OpenCodeReasoning,openai/openai_humaneval")'
-        required: true
-        default: 'nvidia/OpenCodeReasoning,openai/openai_humaneval' # Default datasets for manual trigger
+      # Original datasets
+      nvidia_OpenCodeReasoning:
+        description: 'Download nvidia/OpenCodeReasoning'
+        type: boolean
+        default: false
+      open_thoughts_OpenThoughts2_1M:
+        description: 'Download open-thoughts/OpenThoughts2-1M'
+        type: boolean
+        default: false
+      Anthropic_values_in_the_wild:
+        description: 'Download Anthropic/values-in-the-wild'
+        type: boolean
+        default: false
+      PrimeIntellect_verifiable_coding_problems:
+        description: 'Download PrimeIntellect/verifiable-coding-problems'
+        type: boolean
+        default: false
+      DeepNLP_Coding_Agent_GitHub_2025_Feb:
+        description: 'Download DeepNLP/Coding-Agent-GitHub-2025-Feb'
+        type: boolean
+        default: false
+      aidando73_llama_coding_agent_evals:
+        description: 'Download aidando73/llama-coding-agent-evals'
+        type: boolean
+        default: false
+      openai_openai_humaneval:
+        description: 'Download openai/openai_humaneval'
+        type: boolean
+        default: false
+      HumanLLMs_Human_Like_DPO_Dataset:
+        description: 'Download HumanLLMs/Human-Like-DPO-Dataset'
+        type: boolean
+        default: false
+      # Additional datasets
+      HuggingFaceH4_ultrachat_200k:
+        description: 'Download HuggingFaceH4/ultrachat_200k'
+        type: boolean
+        default: false
+      Anthropic_hh_rlhf:
+        description: 'Download Anthropic/hh-rlhf'
+        type: boolean
+        default: false
+      xAI_TruthfulQA:
+        description: 'Download xAI/TruthfulQA'
+        type: boolean
+        default: false
+      Salesforce_dialogstudio:
+        description: 'Download Salesforce/dialogstudio'
+        type: boolean
+        default: false
+      bigcode_the_stack:
+        description: 'Download bigcode/the-stack'
+        type: boolean
+        default: false
+      allenai_tool_augmented_dialogues:
+        description: 'Download allenai/tool-augmented-dialogues'
+        type: boolean
+        default: false
+      google_research_toolbench:
+        description: 'Download google-research/toolbench'
+        type: boolean
+        default: false
+      codeparrot_github_code:
+        description: 'Download codeparrot/github-code'
+        type: boolean
+        default: false
+      luahub_lua_code_dataset:
+        description: 'Download luahub/lua-code-dataset'
+        type: boolean
+        default: false
+      roblox_luau_code:
+        description: 'Download roblox/luau-code'
+        type: boolean
+        default: false
+      swift_code_swift_repos:
+        description: 'Download swift-code/swift-repos'
+        type: boolean
+        default: false
+      HuggingFaceH4_codeparrot_ds:
+        description: 'Download HuggingFaceH4/codeparrot-ds'
+        type: boolean
+        default: false
+      nuprl_MultiPL_E:
+        description: 'Download nuprl/MultiPL-E'
+        type: boolean
+        default: false
+      codeparrot_apps:
+        description: 'Download codeparrot/apps'
+        type: boolean
+        default: false
+      HuggingFaceH4_python_codes_25k:
+        description: 'Download HuggingFaceH4/python-codes-25k'
+        type: boolean
+        default: false
+      HuggingFaceH4_instruction_dataset:
+        description: 'Download HuggingFaceH4/instruction-dataset'
+        type: boolean
+        default: false
+      allenai_dolma:
+        description: 'Download allenai/dolma'
+        type: boolean
+        default: false
+      openwebtext_openwebtext:
+        description: 'Download openwebtext/openwebtext'
+        type: boolean
+        default: false
 
 jobs:
   download-datasets:
@@ -51,11 +153,37 @@ jobs:
         run: |
           pip install huggingface_hub psutil
 
-      # Run the download script with the selected datasets
+      # Run the download script with selected datasets
       - name: Download Datasets
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }} # Hugging Face token for gated datasets
-          DATASETS_TO_DOWNLOAD: ${{ github.event.inputs.datasets }}
+          # Pass all boolean inputs as environment variables
+          NVIDIA_OPEN_CODE_REASONING: ${{ github.event.inputs.nvidia_OpenCodeReasoning }}
+          OPEN_THOUGHTS_OPEN_THOUGHTS2_1M: ${{ github.event.inputs.open_thoughts_OpenThoughts2_1M }}
+          ANTHROPIC_VALUES_IN_THE_WILD: ${{ github.event.inputs.Anthropic_values_in_the_wild }}
+          PRIMEINTELLECT_VERIFIABLE_CODING_PROBLEMS: ${{ github.event.inputs.PrimeIntellect_verifiable_coding_problems }}
+          DEEPNLP_CODING_AGENT_GITHUB_2025_FEB: ${{ github.event.inputs.DeepNLP_Coding_Agent_GitHub_2025_Feb }}
+          AIDANDO73_LLAMA_CODING_AGENT_EVALS: ${{ github.event.inputs.aidando73_llama_coding_agent_evals }}
+          OPENAI_OPENAI_HUMANEVAL: ${{ github.event.inputs.openai_openai_humaneval }}
+          HUMANLLMS_HUMAN_LIKE_DPO_DATASET: ${{ github.event.inputs.HumanLLMs_Human_Like_DPO_Dataset }}
+          HUGGINGFACEH4_ULTRACHAT_200K: ${{ github.event.inputs.HuggingFaceH4_ultrachat_200k }}
+          ANTHROPIC_HH_RLHF: ${{ github.event.inputs.Anthropic_hh_rlhf }}
+          XAI_TRUTHFULQA: ${{ github.event.inputs.xAI_TruthfulQA }}
+          SALESFORCE_DIALOGSTUDIO: ${{ github.event.inputs.Salesforce_dialogstudio }}
+          BIGCODE_THE_STACK: ${{ github.event.inputs.bigcode_the_stack }}
+          ALLENAI_TOOL_AUGMENTED_DIALOGUES: ${{ github.event.inputs.allenai_tool_augmented_dialogues }}
+          GOOGLE_RESEARCH_TOOLBENCH: ${{ github.event.inputs.google_research_toolbench }}
+          CODEPARROT_GITHUB_CODE: ${{ github.event.inputs.codeparrot_github_code }}
+          LUAHUB_LUA_CODE_DATASET: ${{ github.event.inputs.luahub_lua_code_dataset }}
+          ROBLOX_LUAU_CODE: ${{ github.event.inputs.roblox_luau_code }}
+          SWIFT_CODE_SWIFT_REPOS: ${{ github.event.inputs.swift_code_swift_repos }}
+          HUGGINGFACEH4_CODEPARROT_DS: ${{ github.event.inputs.HuggingFaceH4_codeparrot_ds }}
+          NUPRL_MULTIPL_E: ${{ github.event.inputs.nuprl_MultiPL_E }}
+          CODEPARROT_APPS: ${{ github.event.inputs.codeparrot_apps }}
+          HUGGINGFACEH4_PYTHON_CODES_25K: ${{ github.event.inputs.HuggingFaceH4_python_codes_25k }}
+          HUGGINGFACEH4_INSTRUCTION_DATASET: ${{ github.event.inputs.HuggingFaceH4_instruction_dataset }}
+          ALLENAI_DOLMA: ${{ github.event.inputs.allenai_dolma }}
+          OPENWEBTEXT_OPENWEBTEXT: ${{ github.event.inputs.openwebtext_openwebtext }}
         run: |
           python download_datasets.py
         continue-on-error: true  # Continue even if a dataset fails
