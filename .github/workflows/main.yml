@@ -156,9 +156,9 @@ jobs:
         run: |
           datasets=()
           # Dynamically add datasets based on user inputs
-          for input in $(env | grep 'github_event_inputs' | cut -d'=' -f1); do
-            if [ "${!input}" == "true" ]; then
-              dataset_name=$(echo $input | sed 's/github_event_inputs_//g' | tr '_' '/' | sed 's/-/_/g')
+          for key in $(env | grep '^INPUT_' | cut -d'=' -f1); do
+            if [ "${!key}" == "true" ]; then
+              dataset_name=$(echo $key | sed 's/^INPUT_//' | tr '_' '/' | sed 's/-/_/g')
               datasets+=("$dataset_name")
             fi
           done
