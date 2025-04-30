@@ -23,6 +23,21 @@ jobs:
           git lfs install
           git lfs track "*.jsonl" "*.csv" "*.parquet" "*.txt"
 
+      # Free up disk space by removing unnecessary tools
+      - name: Free Up Disk Space
+        run: |
+          echo "Disk space before cleanup:"
+          df -h
+          # Remove unnecessary tools and files
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo apt-get remove -y '^dotnet-.*' '^llvm-.*' 'php.*' 'mysql.*' 'postgresql.*'
+          sudo apt-get autoremove -y
+          sudo apt-get autoclean
+          echo "Disk space after cleanup:"
+          df -h
+
       # Set up Python
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -32,14 +47,22 @@ jobs:
       # Install dependencies
       - name: Install Dependencies
         run: |
-          pip install huggingface_hub
+          pip install huggingface_hub psutil
 
       # Run the download script
       - name: Download Datasets
         env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }} # Optional: Hugging Face token for gated datasets
+          HF_TOKEN: ${{ secrets.HF_TOKEN }} # Hugging Face token for gated datasets
         run: |
           python download_datasets.py
+        continue-on-error: true  # Continue even if a dataset fails
+
+      # Monitor disk usage after download
+      - name: Check Disk Usage
+        run: |
+          echo "Final disk usage:"
+          df -h
+          du -h datasets/ | sort -h
 
       # Commit and push the datasets
       - name: Commit and Push Datasets
@@ -48,7 +71,7 @@ jobs:
           git config user.email "action@github.com"
           git add datasets/
           git add .gitattributes
-          git commit -m "Add downloaded datasets with Git LFS"
+          git commit -m "Add downloaded datasets with Git LFS" || echo "No changes to commit"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
