@@ -3,7 +3,7 @@ name: Download Datasets and Store with Git LFS
 on:
   workflow_dispatch:
     inputs:
-      # List of dataset inputs
+      # Original datasets
       nvidia_OpenCodeReasoning:
         description: 'Download nvidia/OpenCodeReasoning'
         type: boolean
@@ -20,7 +20,95 @@ on:
         description: 'Download PrimeIntellect/verifiable-coding-problems'
         type: boolean
         default: false
-      # Add additional datasets as needed with similar format...
+      DeepNLP_Coding_Agent_GitHub_2025_Feb:
+        description: 'Download DeepNLP/Coding-Agent-GitHub-2025-Feb'
+        type: boolean
+        default: false
+      aidando73_llama_coding_agent_evals:
+        description: 'Download aidando73/llama-coding-agent-evals'
+        type: boolean
+        default: false
+      openai_openai_humaneval:
+        description: 'Download openai/openai_humaneval'
+        type: boolean
+        default: false
+      HumanLLMs_Human_Like_DPO_Dataset:
+        description: 'Download HumanLLMs/Human-Like-DPO-Dataset'
+        type: boolean
+        default: false
+      # Additional datasets
+      HuggingFaceH4_ultrachat_200k:
+        description: 'Download HuggingFaceH4/ultrachat_200k'
+        type: boolean
+        default: false
+      Anthropic_hh_rlhf:
+        description: 'Download Anthropic/hh-rlhf'
+        type: boolean
+        default: false
+      xAI_TruthfulQA:
+        description: 'Download xAI/TruthfulQA'
+        type: boolean
+        default: false
+      Salesforce_dialogstudio:
+        description: 'Download Salesforce/dialogstudio'
+        type: boolean
+        default: false
+      bigcode_the_stack:
+        description: 'Download bigcode/the-stack'
+        type: boolean
+        default: false
+      allenai_tool_augmented_dialogues:
+        description: 'Download allenai/tool-augmented-dialogues'
+        type: boolean
+        default: false
+      google_research_toolbench:
+        description: 'Download google-research/toolbench'
+        type: boolean
+        default: false
+      codeparrot_github_code:
+        description: 'Download codeparrot/github-code'
+        type: boolean
+        default: false
+      luahub_lua_code_dataset:
+        description: 'Download luahub/lua-code-dataset'
+        type: boolean
+        default: false
+      roblox_luau_code:
+        description: 'Download roblox/luau-code'
+        type: boolean
+        default: false
+      swift_code_swift_repos:
+        description: 'Download swift-code/swift-repos'
+        type: boolean
+        default: false
+      HuggingFaceH4_codeparrot_ds:
+        description: 'Download HuggingFaceH4/codeparrot-ds'
+        type: boolean
+        default: false
+      nuprl_MultiPL_E:
+        description: 'Download nuprl/MultiPL-E'
+        type: boolean
+        default: false
+      codeparrot_apps:
+        description: 'Download codeparrot/apps'
+        type: boolean
+        default: false
+      HuggingFaceH4_python_codes_25k:
+        description: 'Download HuggingFaceH4/python-codes-25k'
+        type: boolean
+        default: false
+      HuggingFaceH4_instruction_dataset:
+        description: 'Download HuggingFaceH4/instruction-dataset'
+        type: boolean
+        default: false
+      allenai_dolma:
+        description: 'Download allenai/dolma'
+        type: boolean
+        default: false
+      openwebtext_openwebtext:
+        description: 'Download openwebtext/openwebtext'
+        type: boolean
+        default: false
 
 jobs:
   download-datasets:
@@ -82,7 +170,72 @@ jobs:
           if ${{ github.event.inputs.PrimeIntellect_verifiable_coding_problems }}; then
             datasets+=("PrimeIntellect/verifiable-coding-problems")
           fi
-          # Additional dataset checks can be added here...
+          if ${{ github.event.inputs.DeepNLP_Coding_Agent_GitHub_2025_Feb }}; then
+            datasets+=("DeepNLP/Coding-Agent-GitHub-2025-Feb")
+          fi
+          if ${{ github.event.inputs.aidando73_llama_coding_agent_evals }}; then
+            datasets+=("aidando73/llama-coding-agent-evals")
+          fi
+          if ${{ github.event.inputs.openai_openai_humaneval }}; then
+            datasets+=("openai/openai_humaneval")
+          fi
+          if ${{ github.event.inputs.HumanLLMs_Human_Like_DPO_Dataset }}; then
+            datasets+=("HumanLLMs/Human-Like-DPO-Dataset")
+          fi
+          if ${{ github.event.inputs.HuggingFaceH4_ultrachat_200k }}; then
+            datasets+=("HuggingFaceH4/ultrachat_200k")
+          fi
+          if ${{ github.event.inputs.Anthropic_hh_rlhf }}; then
+            datasets+=("Anthropic/hh-rlhf")
+          fi
+          if ${{ github.event.inputs.xAI_TruthfulQA }}; then
+            datasets+=("xAI/TruthfulQA")
+          fi
+          if ${{ github.event.inputs.Salesforce_dialogstudio }}; then
+            datasets+=("Salesforce/dialogstudio")
+          fi
+          if ${{ github.event.inputs.bigcode_the_stack }}; then
+            datasets+=("bigcode/the-stack")
+          fi
+          if ${{ github.event.inputs.allenai_tool_augmented_dialogues }}; then
+            datasets+=("allenai/tool-augmented-dialogues")
+          fi
+          if ${{ github.event.inputs.google_research_toolbench }}; then
+            datasets+=("google-research/toolbench")
+          fi
+          if ${{ github.event.inputs.codeparrot_github_code }}; then
+            datasets+=("codeparrot/github-code")
+          fi
+          if ${{ github.event.inputs.luahub_lua_code_dataset }}; then
+            datasets+=("luahub/lua-code-dataset")
+          fi
+          if ${{ github.event.inputs.roblox_luau_code }}; then
+            datasets+=("roblox/luau-code")
+          fi
+          if ${{ github.event.inputs.swift_code_swift_repos }}; then
+            datasets+=("swift-code/swift-repos")
+          fi
+          if ${{ github.event.inputs.HuggingFaceH4_codeparrot_ds }}; then
+            datasets+=("HuggingFaceH4/codeparrot-ds")
+          fi
+          if ${{ github.event.inputs.nuprl_MultiPL_E }}; then
+            datasets+=("nuprl/MultiPL-E")
+          fi
+          if ${{ github.event.inputs.codeparrot_apps }}; then
+            datasets+=("codeparrot/apps")
+          fi
+          if ${{ github.event.inputs.HuggingFaceH4_python_codes_25k }}; then
+            datasets+=("HuggingFaceH4/python-codes-25k")
+          fi
+          if ${{ github.event.inputs.HuggingFaceH4_instruction_dataset }}; then
+            datasets+=("HuggingFaceH4/instruction-dataset")
+          fi
+          if ${{ github.event.inputs.allenai_dolma }}; then
+            datasets+=("allenai/dolma")
+          fi
+          if ${{ github.event.inputs.openwebtext_openwebtext }}; then
+            datasets+=("openwebtext/openwebtext")
+          fi
 
           # Check if any datasets were selected
           if [ ${#datasets[@]} -eq 0 ]; then
