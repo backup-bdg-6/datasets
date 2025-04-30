@@ -14,9 +14,12 @@ except Exception as e:
 
 # List of datasets to download
 datasets = [
-    "nvidia/OpenCodeReasoning",
+    # Already downloaded and committed
+    # "nvidia/OpenCodeReasoning",
+    
+    # Next datasets to download
+    "Anthropic/values-in-the-wild",  # This is a smaller dataset, good to try next
     "open-thoughts/OpenThoughts2-1M",
-    "Anthropic/values-in-the-wild",
     "PrimeIntellect/verifiable-coding-problems",
     "DeepNLP/Coding-Agent-GitHub-2025-Feb",
     "aidando73/llama-coding-agent-evals",
