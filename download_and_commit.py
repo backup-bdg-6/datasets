@@ -16,14 +16,14 @@ except Exception as e:
 datasets = [
     # Already downloaded and committed
     # "nvidia/OpenCodeReasoning",
+    # "Anthropic/values-in-the-wild",
     
     # Next datasets to download
-    "Anthropic/values-in-the-wild",  # This is a smaller dataset, good to try next
+    "openai/openai_humaneval",  # This is a smaller dataset, good to try next
     "open-thoughts/OpenThoughts2-1M",
     "PrimeIntellect/verifiable-coding-problems",
     "DeepNLP/Coding-Agent-GitHub-2025-Feb",
     "aidando73/llama-coding-agent-evals",
-    "openai/openai_humaneval",
     "HumanLLMs/Human-Like-DPO-Dataset",
     "HuggingFaceH4/ultrachat_200k",
     "Anthropic/hh-rlhf",
