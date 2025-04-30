@@ -1,10 +1,12 @@
 name: Download Datasets and Store with Git LFS
 
 on:
-  push:
-    branches:
-      - main
-  workflow_dispatch: # Allows manual triggering
+  workflow_dispatch:
+    inputs:
+      datasets:
+        description: 'Comma-separated list of dataset names (e.g., "nvidia/OpenCodeReasoning,openai/openai_humaneval")'
+        required: true
+        default: 'nvidia/OpenCodeReasoning,openai/openai_humaneval' # Default datasets for manual trigger
 
 jobs:
   download-datasets:
@@ -49,10 +51,11 @@ jobs:
         run: |
           pip install huggingface_hub psutil
 
-      # Run the download script
+      # Run the download script with the selected datasets
       - name: Download Datasets
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }} # Hugging Face token for gated datasets
+          DATASETS_TO_DOWNLOAD: ${{ github.event.inputs.datasets }}
         run: |
           python download_datasets.py
         continue-on-error: true  # Continue even if a dataset fails
