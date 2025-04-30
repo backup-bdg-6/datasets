@@ -150,42 +150,40 @@ jobs:
         run: |
           # Map inputs to dataset names
           declare -A dataset_map=(
-            ["nvidia_OpenCodeReasoning"]="nvidia/OpenCodeReasoning"
-            ["open_thoughts_OpenThoughts2_1M"]="open-thoughts/OpenThoughts2-1M"
-            ["AnthAI_values_in_the_wild"]="DeepAI/values-in-the-wild"
-            ["PrimeIntellect_verifiable_coding_problems"]="PrimeIntellect/verifiable-coding-problems"
-            ["DeepNLP_Coding_Agent_GitHub_2025_Feb"]="DeepNLP/Coding-Agent-GitHub-2025-Feb"
-            ["aidando73_llama_coding_agent_evals"]="aidando73/llama-coding-agent-evals"
-            ["openai_openai_humaneval"]="openai/openai_humaneval"
-            ["HumanLLMs_Human_Like_DPO_Dataset"]="HumanLLMs/Human-Like-DPO-Dataset"
-            ["HuggingFaceH4_ultrachat_200k"]="HuggingFaceH4/ultrachat_200k"
-            ["DeepAI_hh_rlhf"]="DeepAI/hh-rlhf"
-            ["xAI_TruthfulQA"]="xAI/TruthfulQA"
-            ["Salesforce_dialogstudio"]="Salesforce/dialogstudio"
-            ["bigcode_the_stack"]="bigcode/the-stack"
-            ["allenai_tool_augmented_dialogues"]="allenai/tool-augmented-dialogues"
-            ["google_research_toolbench"]="google-research/toolbench"
-            ["codeparrot_github_code"]="codeparrot/github-code"
-            ["luahub_lua_code_dataset"]="luahub/lua-code-dataset"
-            ["roblox_luau_code"]="roblox/luau-code"
-            ["swift_code_swift_repos"]="swift-code/swift-repos"
-            ["HuggingFaceH4_codeparrot_ds"]="HuggingFaceH4/codeparrot-ds"
-            ["nuprl_MultiPL_E"]="nuprl/MultiPL-E"
-            ["codeparrot_apps"]="codeparrot/apps"
-            ["HuggingFaceH4_python_codes_25k"]="HuggingFaceH4/python-codes-25k"
-            ["HuggingFaceH4_instruction_dataset"]="HuggingFaceH4/instruction-dataset"
-            ["allenai_dolma"]="allenai/dolma"
-            ["openwebtext_openwebtext"]="openwebtext/openwebtext"
+            ["NVIDIA_OPENCODEREASONING"]="nvidia/OpenCodeReasoning"
+            ["OPEN_THOUGHTS_OPENTHOUGHTS2_1M"]="open-thoughts/OpenThoughts2-1M"
+            ["ANTHAI_VALUES_IN_THE_WILD"]="AnthAI/values-in-the-wild"
+            ["PRIMEINTELLECT_VERIFIABLE_CODING_PROBLEMS"]="PrimeIntellect/verifiable-coding-problems"
+            ["DEEPNLP_CODING_AGENT_GITHUB_2025_FEB"]="DeepNLP/Coding-Agent-GitHub-2025-Feb"
+            ["AIDANDO73_LLAMA_CODING_AGENT_EVALS"]="aidando73/llama-coding-agent-evals"
+            ["OPENAI_OPENAI_HUMANEVAL"]="openai/openai_humaneval"
+            ["HUMANLLMS_HUMAN_LIKE_DPO_DATASET"]="HumanLLMs/Human-Like-DPO-Dataset"
+            ["HUGGINGFACEH4_ULTRACHAT_200K"]="HuggingFaceH4/ultrachat_200k"
+            ["DEEPAI_HH_RLHF"]="DeepAI/hh-rlhf"
+            ["XAI_TRUTHFULQA"]="xAI/TruthfulQA"
+            ["SALESFORCE_DIALOGSTUDIO"]="Salesforce/dialogstudio"
+            ["BIGCODE_THE_STACK"]="bigcode/the-stack"
+            ["ALLENAI_TOOL_AUGMENTED_DIALOGUES"]="allenai/tool-augmented-dialogues"
+            ["GOOGLE_RESEARCH_TOOLBENCH"]="google-research/toolbench"
+            ["CODEPARROT_GITHUB_CODE"]="codeparrot/github-code"
+            ["LUAHUB_LUA_CODE_DATASET"]="luahub/lua-code-dataset"
+            ["ROBLOX_LUAU_CODE"]="roblox/luau-code"
+            ["SWIFT_CODE_SWIFT_REPOS"]="swift-code/swift-repos"
+            ["HUGGINGFACEH4_CODEPARROT_DS"]="HuggingFaceH4/codeparrot-ds"
+            ["NUPRL_MULTIPL_E"]="nuprl/MultiPL-E"
+            ["CODEPARROT_APPS"]="codeparrot/apps"
+            ["HUGGINGFACEH4_PYTHON_CODES_25K"]="HuggingFaceH4/python-codes-25k"
+            ["HUGGINGFACEH4_INSTRUCTION_DATASET"]="HuggingFaceH4/instruction-dataset"
+            ["ALLENAI_DOLMA"]="allenai/dolma"
+            ["OPENWEBTEXT_OPENWEBTEXT"]="openwebtext/openwebtext"
           )
 
           selected_datasets=()
 
           # Loop through inputs and populate selected_datasets
           for input_name in "${!dataset_map[@]}"; do
-            # Convert input name to environment variable style: INPUT_<uppercase>
-            env_var_name="INPUT_${input_name^^}"
             # Check if the input is true
-            if [ "${!env_var_name}" == "true" ]; then
+            if [ "${{ github.event.inputs.${input_name,,} }}" == "true" ]; then
               selected_datasets+=("${dataset_map[$input_name]}")
             fi
           done
