@@ -6,8 +6,14 @@ from huggingface_hub import snapshot_download, HfApi, login
 from huggingface_hub.utils import HFValidationError
 
 # Login to Hugging Face with the provided token
+# Note: The token should be set as an environment variable HF_TOKEN
+# For security reasons, we don't hardcode the token in the script
+hf_token = os.environ.get("HF_TOKEN")
+if not hf_token:
+    print("Warning: HF_TOKEN environment variable not set. Some datasets may not be accessible.")
+
 try:
-    login(token="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")
+    login(token=hf_token)
     print("Successfully logged in to Hugging Face.")
 except Exception as e:
     print(f"Failed to login to Hugging Face: {e}")
