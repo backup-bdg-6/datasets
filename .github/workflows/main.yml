@@ -3,7 +3,6 @@ name: Download Datasets and Store with Git LFS
 on:
   workflow_dispatch:
     inputs:
-      # Original datasets
       nvidia_OpenCodeReasoning:
         description: 'Download nvidia/OpenCodeReasoning'
         type: boolean
@@ -12,8 +11,8 @@ on:
         description: 'Download open-thoughts/OpenThoughts2-1M'
         type: boolean
         default: false
-      Anthropic_values_in_the_wild:
-        description: 'Download Anthropic/values-in-the-wild'
+      AnthAI_values_in_the_wild:
+        description: 'Download AnthAI/values-in-the-wild'
         type: boolean
         default: false
       PrimeIntellect_verifiable_coding_problems:
@@ -36,13 +35,12 @@ on:
         description: 'Download HumanLLMs/Human-Like-DPO-Dataset'
         type: boolean
         default: false
-      # Additional datasets
       HuggingFaceH4_ultrachat_200k:
         description: 'Download HuggingFaceH4/ultrachat_200k'
         type: boolean
         default: false
-      Anthropic_hh_rlhf:
-        description: 'Download Anthropic/hh-rlhf'
+      DeepAI_hh_rlhf:
+        description: 'Download DeepAI/hh-rlhf'
         type: boolean
         default: false
       xAI_TruthfulQA:
@@ -115,7 +113,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository and set up Git LFS
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
@@ -126,7 +123,6 @@ jobs:
           git lfs install
           git lfs track "*.jsonl" "*.csv" "*.parquet" "*.txt"
 
-      # Step 2: Free up disk space
       - name: Free Up Disk Space
         run: |
           echo "Disk space before cleanup:"
@@ -140,7 +136,6 @@ jobs:
           echo "Disk space after cleanup:"
           df -h
 
-      # Step 3: Set up Python and install dependencies
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -149,42 +144,74 @@ jobs:
       - name: Install Python Dependencies
         run: pip install huggingface_hub psutil
 
-      # Step 4: Dynamically download datasets based on inputs
       - name: Download Selected Datasets
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          datasets=()
-          # Dynamically add datasets based on user inputs
-          for key in $(env | grep '^INPUT_' | cut -d'=' -f1); do
-            if [ "${!key}" == "true" ]; then
-              dataset_name=$(echo $key | sed 's/^INPUT_//' | tr '_' '/' | sed 's/-/_/g')
-              datasets+=("$dataset_name")
+          # Map inputs to dataset names
+          declare -A dataset_map=(
+            ["nvidia_OpenCodeReasoning"]="nvidia/OpenCodeReasoning"
+            ["open_thoughts_OpenThoughts2_1M"]="open-thoughts/OpenThoughts2-1M"
+            ["AnthAI_values_in_the_wild"]="DeepAI/values-in-the-wild"
+            ["PrimeIntellect_verifiable_coding_problems"]="PrimeIntellect/verifiable-coding-problems"
+            ["DeepNLP_Coding_Agent_GitHub_2025_Feb"]="DeepNLP/Coding-Agent-GitHub-2025-Feb"
+            ["aidando73_llama_coding_agent_evals"]="aidando73/llama-coding-agent-evals"
+            ["openai_openai_humaneval"]="openai/openai_humaneval"
+            ["HumanLLMs_Human_Like_DPO_Dataset"]="HumanLLMs/Human-Like-DPO-Dataset"
+            ["HuggingFaceH4_ultrachat_200k"]="HuggingFaceH4/ultrachat_200k"
+            ["DeepAI_hh_rlhf"]="DeepAI/hh-rlhf"
+            ["xAI_TruthfulQA"]="xAI/TruthfulQA"
+            ["Salesforce_dialogstudio"]="Salesforce/dialogstudio"
+            ["bigcode_the_stack"]="bigcode/the-stack"
+            ["allenai_tool_augmented_dialogues"]="allenai/tool-augmented-dialogues"
+            ["google_research_toolbench"]="google-research/toolbench"
+            ["codeparrot_github_code"]="codeparrot/github-code"
+            ["luahub_lua_code_dataset"]="luahub/lua-code-dataset"
+            ["roblox_luau_code"]="roblox/luau-code"
+            ["swift_code_swift_repos"]="swift-code/swift-repos"
+            ["HuggingFaceH4_codeparrot_ds"]="HuggingFaceH4/codeparrot-ds"
+            ["nuprl_MultiPL_E"]="nuprl/MultiPL-E"
+            ["codeparrot_apps"]="codeparrot/apps"
+            ["HuggingFaceH4_python_codes_25k"]="HuggingFaceH4/python-codes-25k"
+            ["HuggingFaceH4_instruction_dataset"]="HuggingFaceH4/instruction-dataset"
+            ["allenai_dolma"]="allenai/dolma"
+            ["openwebtext_openwebtext"]="openwebtext/openwebtext"
+          )
+
+          selected_datasets=()
+
+          # Loop through inputs and populate selected_datasets
+          for input_name in "${!dataset_map[@]}"; do
+            # Convert input name to environment variable style: INPUT_<uppercase>
+            env_var_name="INPUT_${input_name^^}"
+            # Check if the input is true
+            if [ "${!env_var_name}" == "true" ]; then
+              selected_datasets+=("${dataset_map[$input_name]}")
             fi
           done
 
-          # Check if any datasets were selected
-          if [ ${#datasets[@]} -eq 0 ]; then
+          if [ ${#selected_datasets[@]} -eq 0 ]; then
             echo "No datasets selected for download. Exiting."
             exit 0
           fi
 
-          echo "Selected datasets: ${datasets[@]}"
+          echo "Downloading datasets: ${selected_datasets[@]}"
+
           mkdir -p datasets
-          for dataset in "${datasets[@]}"; do
+
+          for dataset in "${selected_datasets[@]}"; do
             echo "Downloading dataset: $dataset"
+            # Assuming download_datasets.py exists and handles downloading
             python download_datasets.py --dataset "$dataset" || echo "Failed to download $dataset"
           done
 
-      # Step 5: Monitor disk space after the download
       - name: Check Disk Usage
         run: |
           echo "Final disk usage:"
           df -h
           du -sh datasets/ | sort -h
 
-      # Step 6: Commit and push the datasets
-      - name: Commit and Push Changes
+      - name: Commit and Push Datasets
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
