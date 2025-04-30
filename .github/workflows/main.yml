@@ -115,19 +115,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the repository
+      # Step 1: Checkout the repository and set up Git LFS
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           lfs: true
 
-      # Step 2: Set up Git LFS
       - name: Setup Git LFS
         run: |
           git lfs install
           git lfs track "*.jsonl" "*.csv" "*.parquet" "*.txt"
 
-      # Step 3: Free up Disk Space
+      # Step 2: Free up disk space
       - name: Free Up Disk Space
         run: |
           echo "Disk space before cleanup:"
@@ -141,55 +140,57 @@ jobs:
           echo "Disk space after cleanup:"
           df -h
 
-      # Step 4: Set up Python
+      # Step 3: Set up Python and install dependencies
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      # Step 5: Install Dependencies
-      - name: Install Dependencies
+      - name: Install Python Dependencies
         run: pip install huggingface_hub psutil
 
-      # Step 6: Download Selected Datasets
+      # Step 4: Dynamically download datasets based on inputs
       - name: Download Selected Datasets
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           datasets=()
-          # Dynamically add datasets based on inputs
+          # Dynamically add datasets based on user inputs
           for input in $(env | grep 'github.event.inputs' | cut -d'=' -f1); do
             if [ "${!input}" == "true" ]; then
-              dataset_name=$(echo $input | sed 's/github.event.inputs.//g' | tr '_' '-' | sed 's/-/./g')
+              dataset_name=$(echo $input | sed 's/github.event.inputs.//g' | tr '_' '-' | sed 's/-/\//g')
               datasets+=("$dataset_name")
             fi
           done
 
+          # Check if any datasets were selected
           if [ ${#datasets[@]} -eq 0 ]; then
             echo "No datasets selected for download. Exiting."
             exit 0
           fi
 
           echo "Selected datasets: ${datasets[@]}"
+          mkdir -p datasets
           for dataset in "${datasets[@]}"; do
             echo "Downloading dataset: $dataset"
             python download_datasets.py --dataset "$dataset" || echo "Failed to download $dataset"
           done
 
-      # Step 7: Monitor Disk Usage After Download
+      # Step 5: Monitor disk space after the download
       - name: Check Disk Usage
         run: |
           echo "Final disk usage:"
           df -h
-          du -h datasets/ | sort -h
+          du -sh datasets/ | sort -h
 
-      # Step 8: Commit and Push Datasets
-      - name: Commit and Push Datasets
+      # Step 6: Commit and push the datasets
+      - name: Commit and Push Changes
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
-          if ! git diff --quiet; then
-            git add datasets/ .gitattributes
+          if [ -n "$(git status --porcelain)" ]; then
+            git add datasets/
+            git add .gitattributes
             git commit -m "Add downloaded datasets with Git LFS"
             git push
           else
