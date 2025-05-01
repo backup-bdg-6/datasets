@@ -1421,6 +1421,15 @@ The provided `ModelUsage.swift` file contains example code for:
         return args
 
 
+def create_flask_app():
+    """
+    Create a Flask app for the training worker.
+    This is used when running as a web service on free tier.
+    """
+    # Import here to avoid circular imports
+    from app.services.training_worker_web import create_app
+    return create_app()
+
 if __name__ == "__main__":
     # Check available memory
     memory_mb = psutil.virtual_memory().total / (1024 * 1024)
@@ -1429,5 +1438,21 @@ if __name__ == "__main__":
     # Initialize worker
     worker = TrainingWorker()
     
-    # Start worker
-    worker.start()
+    # Check if we're running on Render's free tier
+    if os.environ.get('FREE_TIER', '').lower() == 'true' or os.environ.get('RENDER_SERVICE_TYPE', ''):
+        logger.info("Running in web service mode for free tier")
+        # In free tier, we need to run as a web service
+        from app.services.training_worker_web import create_app
+        app = create_app()
+        
+        # Get port from environment
+        port = int(os.environ.get('PORT', 8080))
+        
+        # Import and run with gunicorn-compatible server
+        import waitress
+        logger.info(f"Starting web service on port {port}")
+        waitress.serve(app, host='0.0.0.0', port=port)
+    else:
+        # Standard worker mode
+        logger.info("Running in standard worker mode")
+        worker.start()

@@ -25,8 +25,7 @@ fastapi>=0.95.1
 uvicorn>=0.22.0
 pydantic>=1.10.7
 python-multipart>=0.0.6
-redis>=4.5.4
-socketio>=0.2.1
+waitress>=2.1.2  # For serving Flask app on free tier
 websockets>=11.0.2
 httpx>=0.24.0
 
