@@ -1,13 +1,9 @@
-# Render.yaml configuration for multi-service deployment
-# This configuration is optimized for Render.com's free tier
-# Free tier has ephemeral storage, so we use /tmp directory
-
 services:
   # API Service - Handles API requests and coordinates other services
   - type: web
     name: model-trainer-api
     env: python
-    plan: 
+    plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn -w 1 -b 0.0.0.0:$PORT app.api.main:app
     healthCheckPath: /api/health
@@ -15,7 +11,7 @@ services:
       - key: PYTHON_VERSION
         value: 3.9.16
       - key: MAX_MEMORY_MB
-        value: 400  # Stay within free tier limits
+        value: 400
       - key: STORAGE_DIR
         value: /tmp
       - key: PYTHONUNBUFFERED
@@ -25,14 +21,14 @@ services:
   - type: worker
     name: model-trainer-training
     env: python
-    plan: free  # Free plan is valid for worker services
+    plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: python -m app.services.training_worker
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.16
       - key: MAX_MEMORY_MB
-        value: 450  # Stay within free tier limits
+        value: 400  # Reduced to stay within free tier limits
       - key: STORAGE_DIR
         value: /tmp
       - key: PYTHONUNBUFFERED
@@ -50,7 +46,7 @@ services:
       - key: PYTHON_VERSION
         value: 3.9.16
       - key: MAX_MEMORY_MB
-        value: 250  # Stay within free tier limits
+        value: 250
       - key: STORAGE_DIR
         value: /tmp
       - key: PYTHONUNBUFFERED
@@ -62,7 +58,7 @@ services:
     env: static
     plan: free
     buildCommand: cd app/frontend && npm install && npm run build
-    staticPublishPath: ./app/frontend/build
+    staticPublishPath: app/frontend/build
     envVars:
       - key: API_URL
         fromService:
