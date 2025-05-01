@@ -24,8 +24,7 @@ onnx2torch>=1.5.2
 onnxsim>=0.4.21
 sentencepiece>=0.1.99
 protobuf>=3.20.0,<4.0.0
-# Optional optimum extension for ONNX Runtime
-optimum-onnxruntime>=0.1.0; python_version <= "3.11"
+# optimum-onnxruntime removed due to compatibility issues
 torchvision>=0.14.0
 nvitop>=1.0.0; platform_system!="Darwin"
 
