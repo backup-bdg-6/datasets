@@ -1355,7 +1355,22 @@ def create_model_from_config(config: Dict) -> nn.Module:
     hf_config = ModelConfig(**model_config_params)
     
     # Create TransformerModel with all modern features using our enhanced implementation
-    model = TransformerModel(config=hf_config)
+    # Extract parameters from hf_config and pass them directly to TransformerModel
+    model = TransformerModel(
+        vocab_size=hf_config.vocab_size,
+        hidden_size=hf_config.hidden_size,
+        num_hidden_layers=hf_config.num_hidden_layers,
+        num_attention_heads=hf_config.num_attention_heads,
+        intermediate_size=hf_config.intermediate_size,
+        hidden_dropout_prob=hf_config.hidden_dropout_prob,
+        attention_probs_dropout_prob=hf_config.attention_probs_dropout_prob,
+        max_position_embeddings=hf_config.max_position_embeddings,
+        initializer_range=hf_config.initializer_range,
+        layer_norm_eps=hf_config.layer_norm_eps,
+        use_cache=hf_config.use_cache,
+        use_rotary_embeddings=hf_config.use_rotary_embeddings,
+        causal=hf_config.causal
+    )
     
     # Apply additional model initializations if specified 
     if 'initialization' in architecture_config:
