@@ -488,7 +488,8 @@ class TransformerModel(nn.Module):
         layer_norm_eps: float = 1e-5,
         use_cache: bool = True,
         use_rotary_embeddings: bool = True,
-        causal: bool = True
+        causal: bool = True,
+        config = None
     ):
         """
         Initialize transformer model.
@@ -498,6 +499,7 @@ class TransformerModel(nn.Module):
             hidden_size: Size of the hidden layers
             num_hidden_layers: Number of hidden layers
             num_attention_heads: Number of attention heads
+            config: Optional ModelConfig object. If provided, its parameters will override the individual arguments.
             intermediate_size: Size of the intermediate feed-forward layers
             hidden_dropout_prob: Dropout probability for hidden layers
             attention_probs_dropout_prob: Dropout probability for attention
@@ -510,47 +512,63 @@ class TransformerModel(nn.Module):
         """
         super().__init__()
         
-        # Store configuration
-        self.vocab_size = vocab_size
-        self.hidden_size = hidden_size
-        self.num_hidden_layers = num_hidden_layers
-        self.num_attention_heads = num_attention_heads
-        self.intermediate_size = intermediate_size
-        self.hidden_dropout_prob = hidden_dropout_prob
-        self.attention_probs_dropout_prob = attention_probs_dropout_prob
-        self.max_position_embeddings = max_position_embeddings
-        self.initializer_range = initializer_range
-        self.layer_norm_eps = layer_norm_eps
-        self.use_cache = use_cache
-        self.use_rotary_embeddings = use_rotary_embeddings
-        self.causal = causal
+        # If config is provided, use its parameters instead of the individual arguments
+        if config is not None:
+            self.vocab_size = config.vocab_size
+            self.hidden_size = config.hidden_size
+            self.num_hidden_layers = config.num_hidden_layers
+            self.num_attention_heads = config.num_attention_heads
+            self.intermediate_size = config.intermediate_size
+            self.hidden_dropout_prob = config.hidden_dropout_prob
+            self.attention_probs_dropout_prob = config.attention_probs_dropout_prob
+            self.max_position_embeddings = config.max_position_embeddings
+            self.initializer_range = config.initializer_range
+            self.layer_norm_eps = config.layer_norm_eps
+            self.use_cache = config.use_cache
+            self.use_rotary_embeddings = config.use_rotary_embeddings
+            self.causal = config.causal
+        else:
+            # Store configuration from individual parameters
+            self.vocab_size = vocab_size
+            self.hidden_size = hidden_size
+            self.num_hidden_layers = num_hidden_layers
+            self.num_attention_heads = num_attention_heads
+            self.intermediate_size = intermediate_size
+            self.hidden_dropout_prob = hidden_dropout_prob
+            self.attention_probs_dropout_prob = attention_probs_dropout_prob
+            self.max_position_embeddings = max_position_embeddings
+            self.initializer_range = initializer_range
+            self.layer_norm_eps = layer_norm_eps
+            self.use_cache = use_cache
+            self.use_rotary_embeddings = use_rotary_embeddings
+            self.causal = causal
         
         # Token embeddings
-        self.token_embedding = nn.Embedding(vocab_size, hidden_size)
+        self.token_embedding = nn.Embedding(self.vocab_size, self.hidden_size)
         
         # Positional embeddings
-        if use_rotary_embeddings:
-            self.pos_embedding = RotaryPositionalEmbedding(hidden_size, max_position_embeddings)
+        if self.use_rotary_embeddings:
+            self.pos_embedding = RotaryPositionalEmbedding(self.hidden_size, self.max_position_embeddings)
         else:
-            self.pos_embedding = nn.Embedding(max_position_embeddings, hidden_size)
+            self.pos_embedding = nn.Embedding(self.max_position_embeddings, self.hidden_size)
         
         # Transformer blocks
         self.blocks = nn.ModuleList([
             TransformerBlock(
-                hidden_size,
-                num_attention_heads,
-                intermediate_size,
-                hidden_dropout_prob,
-                causal
+                self.hidden_size,
+                self.num_attention_heads,
+                self.intermediate_size,
+                self.hidden_dropout_prob,
+                self.causal
             )
-            for _ in range(num_hidden_layers)
+            for _ in range(self.num_hidden_layers)
         ])
         
         # Final layer normalization
-        self.norm = nn.LayerNorm(hidden_size, eps=layer_norm_eps)
+        self.norm = nn.LayerNorm(self.hidden_size, eps=self.layer_norm_eps)
         
         # Output projection
-        self.output_proj = nn.Linear(hidden_size, vocab_size, bias=False)
+        self.output_proj = nn.Linear(self.hidden_size, self.vocab_size, bias=False)
         
         # Tie weights
         self.output_proj.weight = self.token_embedding.weight
