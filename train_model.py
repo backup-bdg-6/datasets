@@ -99,6 +99,10 @@ def parse_args():
         choices=["dynamic_quantization", "static_quantization", "int8", "int4", "pruning", "onnx"],
         help="Type of model optimization to apply"
     )
+    parser.add_argument(
+        "--hf_token", type=str, default=None,
+        help="HuggingFace API token for accessing gated datasets"
+    )
     
     return parser.parse_args()
 
@@ -219,8 +223,8 @@ def main():
     if stage_config is None:
         raise ValueError(f"Training stage {active_stage} not found in configuration")
     
-    # Initialize dataset loader
-    dataset_loader = DatasetLoader(args.config)
+    # Initialize dataset loader with HuggingFace token if provided
+    dataset_loader = DatasetLoader(args.config, huggingface_token=args.hf_token)
     
     # Load datasets
     train_datasets = []

@@ -55,32 +55,137 @@ training:
   active_stage: "pretrain"  # Options: pretrain, finetune, distillation
   stages:
     - name: "pretrain"
-      epochs: 3
+      epochs: 1
       datasets:
-        - name: "wikitext"
-          subset: "wikitext-103-v1"
-          split: "train"
-          streaming: false
-          max_samples: 100000
-        - name: "bookcorpus"
+        # High-quality code datasets
+        - name: "nvidia/OpenCodeReasoning"
           split: "train"
           streaming: true
-          max_samples: 100000
+          max_samples: 50000
+        - name: "openai/openai_humaneval"
+          split: "train"
+          streaming: true
+          max_samples: 50000
+        - name: "bigcode/the-stack"
+          split: "train"
+          streaming: true
+          max_samples: 50000
+        
+        # High-quality instruction datasets
+        - name: "open-thoughts/OpenThoughts2-1M"
+          split: "train"
+          streaming: true
+          max_samples: 50000
+        - name: "xAI/TruthfulQA"
+          split: "train"
+          streaming: true
+          max_samples: 50000
+        - name: "HuggingFaceH4/instruction-dataset"
+          split: "train"
+          streaming: true
+          max_samples: 50000
+        - name: "HuggingFaceH4/ultrachat_200k"
+          split: "train"
+          streaming: true
+          max_samples: 50000
+        - name: "Salesforce/dialogstudio"
+          split: "train"
+          streaming: true
+          max_samples: 50000
+        
+        # High-quality RLHF and preference datasets
+        - name: "Anthropic/hh-rlhf"
+          split: "train"
+          streaming: true
+          max_samples: 50000
+        - name: "Anthropic/Anthropic-RLHF"
+          split: "train"
+          streaming: true
+          max_samples: 50000
+        - name: "stanfordnlp/SHP"
+          split: "train"
+          streaming: true
+          max_samples: 50000
+        
+        # Large pretraining corpora
+        - name: "allenai/dolma"
+          split: "train"
+          streaming: true
+          max_samples: 50000
+        - name: "openwebtext/openwebtext"
+          split: "train"
+          streaming: true
+          max_samples: 50000
+        - name: "meta-math/MetaMathQA"
+          split: "train"
+          streaming: true
+          max_samples: 50000
+        - name: "lmsys/chatbot_arena_conversations"
+          split: "train"
+          streaming: true
+          max_samples: 50000
+        - name: "open-orca/OpenOrca"
+          split: "train"
+          streaming: true
+          max_samples: 50000
+        - name: "teknium/Grok-3-Dataset"
+          split: "train"
+          streaming: true
+          max_samples: 50000
+        - name: "togethercomputer/RedPajama-Data-1T"
+          split: "train"
+          streaming: true
+          max_samples: 50000
+        - name: "cerebras/SlimPajama-627B"
+          split: "train"
+          streaming: true
+          max_samples: 50000
+        - name: "EleutherAI/pile"
+          split: "train"
+          streaming: true
+          max_samples: 50000
+        - name: "allenai/c4"
+          split: "train"
+          streaming: true
+          max_samples: 50000
+        - name: "bigscience/xP3"
+          split: "train"
+          streaming: true
+          max_samples: 50000
+        - name: "HuggingFaceTB/cosmopedia"
+          split: "train"
+          streaming: true
+          max_samples: 50000
+        - name: "xAI/xAI-WildChat"
+          split: "train"
+          streaming: true
+          max_samples: 50000
+        - name: "google-research/FLAN"
+          split: "train"
+          streaming: true
+          max_samples: 50000
+      
       learning_rate:
         initial: 5.0e-5
         min: 1.0e-6
         schedule: "cosine"  # Options: linear, cosine, constant
         warmup_steps: 1000
+    
     - name: "finetune"
       epochs: 2
       datasets:
-        - name: "imdb"
+        - name: "HuggingFaceH4/ultrachat_200k"
           split: "train"
-          streaming: false
-        - name: "glue"
-          subset: "sst2"
+          streaming: true
+          max_samples: 50000
+        - name: "open-orca/OpenOrca"
           split: "train"
-          streaming: false
+          streaming: true
+          max_samples: 50000
+        - name: "Anthropic/hh-rlhf"
+          split: "train"
+          streaming: true
+          max_samples: 50000
       learning_rate:
         initial: 2.0e-5
         min: 1.0e-6

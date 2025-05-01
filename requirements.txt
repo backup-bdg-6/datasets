@@ -7,6 +7,7 @@ bitsandbytes>=0.39.0
 optimum>=1.8.0
 onnx>=1.13.0
 onnxruntime>=1.14.0
+huggingface_hub>=0.16.0
 
 # Data processing
 nltk>=3.8.0
