@@ -1,9 +1,10 @@
 # Render.yaml configuration for multi-service deployment
-# This configuration is optimized for Render.com's free tier
-# Free tier has ephemeral storage, so we use /tmp directory
+# This configuration is STRICTLY for Render.com's FREE TIER
+# No background workers, no persistent disk storage, minimal resources
 
 services:
   # API Service - Handles API requests and coordinates other services
+  # FREE TIER WEB SERVICE: Uses minimal resources and ephemeral storage
   - type: web
     name: model-trainer-api
     env: python
@@ -14,30 +15,36 @@ services:
       - key: PYTHON_VERSION
         value: 3.9.16
       - key: MAX_MEMORY_MB
-        value: 400  # Stay within free tier limits
+        value: 400  # Stay within free tier memory limits
       - key: STORAGE_DIR
-        value: /tmp
+        value: /tmp  # Ephemeral storage only
       - key: PYTHONUNBUFFERED
         value: true
+      - key: FREE_TIER
+        value: true
 
-  # Training Service - Dedicated to model training
-  - type: worker
+  # Training Service - Now as web service since we don't have worker access on free tier
+  # FREE TIER WEB SERVICE: Converted from worker to web service for free tier compatibility
+  - type: web
     name: model-trainer-training
     env: python
-    plan: free  # Free plan is valid for worker services
     buildCommand: pip install -r requirements.txt
-    startCommand: python -m app.services.training_worker
+    startCommand: gunicorn -w 1 -b 0.0.0.0:$PORT app.services.training_worker:create_flask_app()
+    healthCheckPath: /health
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.16
       - key: MAX_MEMORY_MB
-        value: 450  # Stay within free tier limits
+        value: 450  # Stay within free tier memory limits
       - key: STORAGE_DIR
-        value: /tmp
+        value: /tmp  # Ephemeral storage only
       - key: PYTHONUNBUFFERED
+        value: true
+      - key: FREE_TIER
         value: true
 
   # Monitoring Service - Tracks and visualizes training progress
+  # FREE TIER WEB SERVICE: Uses minimal resources and ephemeral storage
   - type: web
     name: model-trainer-monitor
     env: python
@@ -48,13 +55,16 @@ services:
       - key: PYTHON_VERSION
         value: 3.9.16
       - key: MAX_MEMORY_MB
-        value: 250  # Stay within free tier limits
+        value: 250  # Stay within free tier memory limits
       - key: STORAGE_DIR
-        value: /tmp
+        value: /tmp  # Ephemeral storage only
       - key: PYTHONUNBUFFERED
+        value: true
+      - key: FREE_TIER
         value: true
 
   # Frontend Service - Serves the web UI for interaction
+  # FREE TIER STATIC SITE VIA WEB SERVICE: Minimal static file serving
   - type: web
     name: model-trainer-frontend
     env: static
@@ -66,3 +76,5 @@ services:
           name: model-trainer-api
           type: web
           property: hostport
+      - key: FREE_TIER
+        value: true
