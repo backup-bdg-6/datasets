@@ -1,0 +1,243 @@
+# Configuration for AI model training workflow
+
+# Project information
+project_name: "transformer_model_training"
+output_dir: "./output"
+seed: 42
+
+# Model configuration
+model:
+  type: "decoder_only_transformer"
+  size: "medium"  # Options: small, medium, large, xlarge
+  sizes:
+    small:
+      n_layers: 6
+      n_heads: 8
+      d_model: 512
+      d_ff: 2048
+      max_seq_length: 1024
+    medium:
+      n_layers: 12
+      n_heads: 12
+      d_model: 768
+      d_ff: 3072
+      max_seq_length: 2048
+    large:
+      n_layers: 24
+      n_heads: 16
+      d_model: 1024
+      d_ff: 4096
+      max_seq_length: 4096
+    xlarge:
+      n_layers: 36
+      n_heads: 20
+      d_model: 1280
+      d_ff: 5120
+      max_seq_length: 8192
+  dropout: 0.1
+  attention:
+    causal: true
+    rotary_embedding: true
+
+# Tokenizer configuration
+tokenizer:
+  type: "huggingface"
+  name: "gpt2"
+  vocab_size: 50257
+  max_length: 2048
+  padding_side: "right"
+  truncation_side: "right"
+  add_bos_token: true
+  add_eos_token: true
+
+# Training configuration
+training:
+  active_stage: "pretrain"  # Options: pretrain, finetune, distillation
+  stages:
+    - name: "pretrain"
+      epochs: 3
+      datasets:
+        - name: "wikitext"
+          subset: "wikitext-103-v1"
+          split: "train"
+          streaming: false
+          max_samples: 100000
+        - name: "bookcorpus"
+          split: "train"
+          streaming: true
+          max_samples: 100000
+      learning_rate:
+        initial: 5.0e-5
+        min: 1.0e-6
+        schedule: "cosine"  # Options: linear, cosine, constant
+        warmup_steps: 1000
+    - name: "finetune"
+      epochs: 2
+      datasets:
+        - name: "imdb"
+          split: "train"
+          streaming: false
+        - name: "glue"
+          subset: "sst2"
+          split: "train"
+          streaming: false
+      learning_rate:
+        initial: 2.0e-5
+        min: 1.0e-6
+        schedule: "linear"
+        warmup_steps: 500
+    - name: "distillation"
+      epochs: 2
+      datasets:
+        - name: "wikitext"
+          subset: "wikitext-103-v1"
+          split: "train"
+          streaming: false
+          max_samples: 50000
+      learning_rate:
+        initial: 1.0e-5
+        min: 1.0e-6
+        schedule: "linear"
+        warmup_steps: 200
+      teacher_model: "gpt2-medium"
+      temperature: 2.0
+      alpha: 0.5  # Weight for distillation loss
+  
+  # Optimizer settings
+  optimizer:
+    name: "adamw"  # Options: adam, adamw, sgd, adafactor
+    weight_decay: 0.01
+    beta1: 0.9
+    beta2: 0.999
+    eps: 1.0e-8
+    use_8bit: false  # Whether to use 8-bit optimizer
+  
+  # Mixed precision settings
+  mixed_precision: "fp16"  # Options: no, fp16, bf16
+  gradient_checkpointing: false
+  gradient_clipping: 1.0
+  
+  # Checkpointing settings
+  checkpointing:
+    save_steps: 1000
+    keep_last_n: 3
+    save_optimizer_state: true
+  
+  # Evaluation settings
+  evaluation:
+    eval_steps: 500
+    early_stopping:
+      enabled: true
+      patience: 3
+      metric: "eval_loss"
+      mode: "min"  # Options: min, max
+
+# Distributed training configuration
+distributed_training:
+  backend: "nccl"  # Options: nccl, gloo
+  use_deepspeed: true
+  zero_stage: 2  # Options: 0, 1, 2, 3
+  offload_optimizer: false
+  offload_param: false
+  gradient_accumulation_steps: 1
+
+# Data processing configuration
+data_processing:
+  preprocessing:
+    normalize_unicode: true
+    normalize_whitespace: true
+    remove_html: true
+    min_length: 10
+    max_length: 2048
+  
+  augmentation:
+    enabled: true
+    techniques:
+      - name: "synonym_replacement"
+        probability: 0.1
+      - name: "random_deletion"
+        probability: 0.05
+      - name: "random_insertion"
+        probability: 0.05
+  
+  batching:
+    train_batch_size: 16
+    eval_batch_size: 16
+    gradient_accumulation_steps: 4
+    dynamic_batching: false
+
+# Hyperparameter optimization configuration
+hyperparameter_optimization:
+  enabled: false
+  search_algorithm: "hyperopt"  # Options: hyperopt, bayesopt, optuna, random
+  scheduler: "asha"  # Options: asha, pbt
+  num_samples: 10
+  num_epochs: 1
+  metric: "eval_loss"
+  mode: "min"
+  search_space:
+    learning_rate:
+      distribution: "log_uniform"
+      min: 1.0e-5
+      max: 1.0e-3
+    weight_decay:
+      distribution: "log_uniform"
+      min: 1.0e-6
+      max: 1.0e-2
+    batch_size:
+      distribution: "categorical"
+      values: [8, 16, 32, 64]
+    dropout:
+      distribution: "uniform"
+      min: 0.1
+      max: 0.5
+
+# Model optimization configuration
+model_optimization:
+  quantization:
+    enabled: false
+    method: "dynamic"  # Options: dynamic, static, int8, int4
+    dtype: "int8"
+  
+  pruning:
+    enabled: false
+    method: "l1_unstructured"
+    amount: 0.3
+  
+  distillation:
+    enabled: false
+    teacher_model: "gpt2-medium"
+    temperature: 2.0
+    alpha: 0.5
+
+# Evaluation configuration
+evaluation:
+  metrics:
+    - "loss"
+    - "perplexity"
+    - "accuracy"
+    - "bleu"
+    - "rouge"
+  
+  generation:
+    max_length: 128
+    num_beams: 4
+    temperature: 1.0
+    top_p: 0.9
+    top_k: 50
+    do_sample: true
+
+# Logging configuration
+logging:
+  use_wandb: false
+  wandb_project: "transformer_model_training"
+  log_steps: 100
+  save_logs: true
+
+# Error handling configuration
+error_handling:
+  fallbacks:
+    dataset_unavailable: "use_cached"
+    model_load_failure: "use_default"
+  max_retries: 3
+  retry_delay: 5  # seconds
